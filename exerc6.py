@@ -123,10 +123,6 @@ def make_ellipses(gmm, ax, colors):
         angle = np.arctan2(u[1], u[0])
         angle = 180 * angle / np.pi  # convert to degrees
         #v *= 9
-        print("ELIPSE")
-        print(gmm.means_[n, :2])
-        print(v[0], v[1])
-        print(180 + angle)
         ell = mpl.patches.Ellipse(gmm.means_[n, :2], v[0], v[1],
                                   180 + angle, color=color)
         ell.set_clip_box(ax.bbox)
