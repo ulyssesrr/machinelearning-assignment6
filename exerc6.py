@@ -6,10 +6,12 @@ import random
 import numpy as np
 from scipy import stats
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 from sklearn import datasets
 from sklearn.cluster import AgglomerativeClustering
+from sklearn.mixture import GMM
 
 from kmeans import kmeans
 
@@ -110,5 +112,50 @@ for c, i, classe in zip("rg", classes, classes):
 plt.legend()
 plt.title('Jain (Hierárquico) (Dist. Euclideana)')
 
+dataset = np.genfromtxt('aggregation.txt', delimiter="\t", dtype=np.float64)
+target = dataset[:,-1]
+dataset = dataset[:,0:-1]
 
+def make_ellipses(gmm, ax, colors):
+    for n, color in colors:
+        v, w = np.linalg.eigh(gmm._get_covars()[n][:2, :2])
+        u = w[0] / np.linalg.norm(w[0])
+        angle = np.arctan2(u[1], u[0])
+        angle = 180 * angle / np.pi  # convert to degrees
+        #v *= 9
+        print("ELIPSE")
+        print(gmm.means_[n, :2])
+        print(v[0], v[1])
+        print(180 + angle)
+        ell = mpl.patches.Ellipse(gmm.means_[n, :2], v[0], v[1],
+                                  180 + angle, color=color)
+        ell.set_clip_box(ax.bbox)
+        ell.set_alpha(0.4)
+        ax.add_artist(ell)
+
+
+classifiers = [4, 7, 10]
+n_classifiers = len(classifiers)
+for idx, n_components in enumerate(classifiers):
+	fig = plt.figure()
+	gmm = GMM(n_components=n_components, init_params='wc', n_iter=20, n_init=20)
+	gmm.fit(dataset)
+	
+	
+	ax = fig.add_subplot(1,1,1, aspect='equal')
+	print(n_components)
+	colors = 'rgbcmyk'[0:n_components]
+	make_ellipses(gmm, ax, enumerate(colors))
+	
+	y_pred = gmm.predict(dataset)
+	accuracy = cluster_accuracy(target, y_pred)
+	for n, color in enumerate(colors):
+		data = dataset[y_pred == n]
+		plt.plot(data[:, 0], data[:, 1], 'x', color=color)
+		
+	plt.xticks(())
+	plt.yticks(())
+	plt.title("%d Componentes" % (n_components))
+
+plt.legend()
 plt.show()
