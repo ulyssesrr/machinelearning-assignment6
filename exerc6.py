@@ -9,6 +9,7 @@ from scipy import stats
 import matplotlib.pyplot as plt
 
 from sklearn import datasets
+from sklearn.cluster import AgglomerativeClustering
 
 from kmeans import kmeans
 
@@ -30,26 +31,32 @@ def cluster_accuracy(y_true, y_pred):
 	
 
 
-centres, y_pred, distances = kmeans(dataset, np.array(random.sample(dataset, 3)), metric="euclidean")
+centres, y_pred, distances = kmeans(dataset, np.array(random.sample(list(dataset), 3)), metric="euclidean")
 accuracy = cluster_accuracy(target, y_pred)
 print("Iris: K-Means (Distância Euclideana): Acurácia: %0.3f" % (accuracy))
 
-centres, y_pred, distances = kmeans(dataset, np.array(random.sample(dataset, 3)), metric="cityblock")
+centres, y_pred, distances = kmeans(dataset, np.array(random.sample(list(dataset), 3)), metric="cityblock")
 accuracy = cluster_accuracy(target, y_pred)
 print("Iris: K-Means (Distância de Manhattan): Acurácia: %0.3f" % (accuracy))
 
-print("TODO: Iris: Hierárquico (Distância Euclideana): Acurácia: %0.3f" % (accuracy))
-print("TODO: Iris: Hierárquico (Distância de Manhattan): Acurácia: %0.3f" % (accuracy))
+ac = AgglomerativeClustering(n_clusters=3, affinity='euclidean', linkage='average')
+y_pred = ac.fit_predict(dataset)
+accuracy = cluster_accuracy(target, y_pred)
+print("Iris: Hierárquico (Distância Euclideana): Acurácia: %0.3f" % (accuracy))
+
+ac = AgglomerativeClustering(n_clusters=3, affinity='manhattan', linkage='average')
+y_pred = ac.fit_predict(dataset)
+accuracy = cluster_accuracy(target, y_pred)
+print("Iris: Hierárquico (Distância de Manhattan): Acurácia: %0.3f" % (accuracy))
 
 
 dataset = np.genfromtxt('spiral.txt', delimiter="\t", dtype=np.float64)
 target = dataset[:,-1]
 dataset = dataset[:,0:-1]
 
-centres, y_pred, distances = kmeans(dataset, np.array(random.sample(dataset, 3)), metric="euclidean")
+centres, y_pred, distances = kmeans(dataset, np.array(random.sample(list(dataset), 3)), metric="euclidean")
 accuracy = cluster_accuracy(target, y_pred)
 print("Spiral: K-Means (Distância Euclideana): Acurácia: %0.3f" % (accuracy))
-print("TODO: Spiral: Hierárquico (Distância Euclideana): Acurácia: %0.3f" % (accuracy))
 
 plt.figure()
 plt.clf()
@@ -57,18 +64,30 @@ classes = [0, 1, 2]
 for c, i, classe in zip("rgb", classes, classes):
     plt.scatter(dataset[y_pred == i, 0], dataset[y_pred == i, 1], c=c, label=classe)
 plt.legend()
-plt.title('Spiral K-Means (Dist. Euclideana)')
-#plt.show()
+plt.title('Spiral (K-Means) (Dist. Euclideana)')
+
+ac = AgglomerativeClustering(n_clusters=3, affinity='euclidean')
+y_pred = ac.fit_predict(dataset)
+accuracy = cluster_accuracy(target, y_pred)
+print("Spiral: Hierárquico (Distância Euclideana): Acurácia: %0.3f" % (accuracy))
+
+plt.figure()
+plt.clf()
+classes = [0, 1, 2] 
+for c, i, classe in zip("rgb", classes, classes):
+    plt.scatter(dataset[y_pred == i, 0], dataset[y_pred == i, 1], c=c, label=classe)
+plt.legend()
+plt.title('Spiral (Hierárquico) (Dist. Euclideana)')
+
 
 
 dataset = np.genfromtxt('jain.txt', delimiter="\t", dtype=np.float64)
 target = dataset[:,-1]
 dataset = dataset[:,0:-1]
 
-centres, y_pred, distances = kmeans(dataset, np.array(random.sample(dataset, 2)), metric="euclidean")
+centres, y_pred, distances = kmeans(dataset, np.array(random.sample(list(dataset), 2)), metric="euclidean")
 accuracy = cluster_accuracy(target, y_pred)
 print("Jain: K-Means (Distância Euclideana): Acurácia: %0.3f" % (accuracy))
-print("TODO: Jain: Hierárquico (Distância Euclideana): Acurácia: %0.3f" % (accuracy))
 
 plt.figure()
 plt.clf()
@@ -77,4 +96,19 @@ for c, i, classe in zip("rg", classes, classes):
     plt.scatter(dataset[y_pred == i, 0], dataset[y_pred == i, 1], c=c, label=classe)
 plt.legend()
 plt.title('Jain K-Means (Dist. Euclideana)')
+
+ac = AgglomerativeClustering(n_clusters=2, affinity='euclidean')
+y_pred = ac.fit_predict(dataset)
+accuracy = cluster_accuracy(target, y_pred)
+print("Jain: Hierárquico (Distância Euclideana): Acurácia: %0.3f" % (accuracy))
+
+plt.figure()
+plt.clf()
+classes = [0, 1] 
+for c, i, classe in zip("rg", classes, classes):
+    plt.scatter(dataset[y_pred == i, 0], dataset[y_pred == i, 1], c=c, label=classe)
+plt.legend()
+plt.title('Jain (Hierárquico) (Dist. Euclideana)')
+
+
 plt.show()
